@@ -10,21 +10,18 @@ import math
 
 import numpy as np
 import random
-import scipy
 import scipy.stats
 import scipy.fftpack
 import subprocess
 import warnings
 
 from wave import open as open_wave
-from scipy.io import wavfile
 
 import matplotlib.pyplot as plt
 
-try:
-    from math import gcd
-except ImportError:
-    from fractions import gcd
+from math import gcd
+
+from decimal import Decimal, ROUND_HALF_UP, ROUND_HALF_DOWN
 
 try:
     from IPython.display import Audio
@@ -106,8 +103,9 @@ def find_index(x, xs):
     n = len(xs)
     start = xs[0]
     end = xs[-1]
-    i = round((n - 1) * (x - start) / (end - start))
-    return int(i)
+    i = int(Decimal((n - 1) * (x - start) / (end - start)).quantize(Decimal('1'),
+                                                                 rounding=ROUND_HALF_DOWN))
+    return i
 
 
 class _SpectrumParent:
@@ -402,10 +400,13 @@ class Wave:
         # make an array of times that covers both waves
         start = min(self.start, other.start)
         end = max(self.end, other.end)
-        n = int(round((end - start) * self.framerate)) + 1
+        n = int(Decimal((end - start) * self.framerate).quantize(Decimal('1'),
+                                                                 rounding=ROUND_HALF_UP)) + 1
+        # n = int(round((end - start) * self.framerate)) + 1
+        # if ((end - start) * self.framerate)%1 == 0.5:
+        #     n = n +1
         ys = np.zeros(n)
         ts = start + np.arange(n) / self.framerate
-
         def add_ys(wave):
             i = find_index(wave.start, ts)
 
@@ -417,7 +418,7 @@ class Wave:
                     "Can't add these waveforms; their " "time arrays don't line up."
                 )
 
-            j = i + len(wave)
+            j = i + len(wave.ys)
             ys[i:j] += wave.ys
 
         add_ys(self)
