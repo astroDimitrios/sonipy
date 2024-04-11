@@ -139,7 +139,7 @@ class MultiTone(FrequencyScale):
         Saves .wav file from multitone system in tones folder.
         """
 
-        self.filepath = os.path.join(path, 'tones/')
+        self.filepath = os.path.join(path, default_tones_folder)
 
         if os.path.exists(path):
             if not os.path.exists(self.filepath):
