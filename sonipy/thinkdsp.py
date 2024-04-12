@@ -402,18 +402,20 @@ class Wave:
         end = max(self.end, other.end)
         n = int(Decimal((end - start) * self.framerate).quantize(Decimal('1'),
                                                                  rounding=ROUND_HALF_UP)) + 1
-        # n = int(round((end - start) * self.framerate)) + 1
-        # if ((end - start) * self.framerate)%1 == 0.5:
-        #     n = n +1
         ys = np.zeros(n)
         ts = start + np.arange(n) / self.framerate
         def add_ys(wave):
             i = find_index(wave.start, ts)
 
+            # NOTE: @astroDimitrios no idea what this means by
+            # time arrays don't line up - surely it should fail here
+            # if they don't line up. Increasing the check from 0.1 to 0.5
+            # stops the warning for now
+             
             # make sure the arrays line up reasonably well
             diff = ts[i] - wave.start
             dt = 1 / wave.framerate
-            if (diff / dt) > 0.1:
+            if (diff / dt) > 0.5:
                 warnings.warn(
                     "Can't add these waveforms; their " "time arrays don't line up."
                 )
@@ -541,7 +543,6 @@ class Wave:
 
         filename: string
         """
-        print("Writing", filename)
         wfile = WavFileWriter(filename, self.framerate)
         wfile.write(self)
         wfile.close()

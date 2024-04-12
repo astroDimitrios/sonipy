@@ -48,13 +48,13 @@ class MultiTone(FrequencyScale):
     verbose : bool
         Flag for printing. Default False.
     alertMultitoneCreated : bool
-        Flag for alerting when Multitone created. Default True.
+        Flag for alerting when Multitone created. Default False.
     **kwargs : dictionary
         Dictionary with pitch y value arguments (frequency_min, frequency_max, cents_per_value, value_min, value_max).
     """
 
     def __init__(self, starttimes, values, bliplength=.5, fade=True,
-                 verbose=False, alertMultitoneCreated=True, **kwargs):
+                 verbose=False, alertMultitoneCreated=False, **kwargs):
 
         if len(starttimes) != len(values):
             raise Exception("startimes and values are not the same length.")
@@ -89,6 +89,7 @@ class MultiTone(FrequencyScale):
         self.x_starttimes = starttimes
         self.y_frequencies = self.y_freq_translate_to_range(self.y_values)
 
+        self.verbose = verbose
         if verbose:
             print('frequencies', self.y_frequencies)
             print('starttimes', self.x_starttimes)
@@ -147,7 +148,7 @@ class MultiTone(FrequencyScale):
 
             fullfilepath = os.path.join(self.filepath, filename)
             self.multitone.write(fullfilepath)
-            print('Saved multitone as %s.' % fullfilepath)
+            if self.verbose: print('Saved multitone as %s.' % fullfilepath)
         else:
             raise('Path does not exist.')
 
@@ -200,7 +201,7 @@ class MultiTone(FrequencyScale):
 def SonifyTool(x, y,
                frequency_args={"frequency_min": C4, "frequency_max": 4 * C4},
                duration_args={"time_total": 2. * s_to_ms}, duration_scale=None, bliplength=.1, fade=True,
-               alertMultitoneCreated=True, verbose=False):
+               alertMultitoneCreated=False, verbose=False):
     """
     This is a built-in-one sonification tool for creating a MultiTone.
 
@@ -231,7 +232,7 @@ def SonifyTool(x, y,
     verbose : bool
         Flag for printing. Default False.
     alertMultitoneCreated : bool
-        Flag for alerting when Multitone created. Default True.
+        Flag for alerting when Multitone created. Default False.
 
     Returns
     -------
